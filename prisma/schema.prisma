@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model call {
+  id                         String            @id
+  customer_id                String
+  first_name                 String?
+  company_id                 String
+  company_name               String?
+  campaign_id                String
+  campaign_name              String?
+  phone_number               String
+  room_name                  String            @unique
+  call_duration              Float?
+  call_type                  CallType          @default(OUTBOUND_PHONE_CALL)
+  call_status                CallStatus?
+  call_outcome               CallOutcome?
+  call_attempt_num           Int               @default(0)
+  assistant_id               String?
+  summarized_transcript      String?
+  call_recording_url         String?           @unique
+  llm_prompt_tokens          Int?
+  llm_prompt_cached_tokens   Int?
+  llm_completion_tokens      Int?
+  tts_characters_count       Int?
+  tts_audio_duration         Float?
+  stt_audio_duration         Float?
+  total_latency              Float?
+  eou_end_of_utterance_delay Float?
+  llm_ttft                   Float?
+  tts_ttfb                   Float?
+  total_cost                 Float?
+  stt_cost                   Float?
+  tts_cost                   Float?
+  llm_cost                   Float?
+  raw_metrics                Json?
+  started_at                 DateTime?
+  ended_at                   DateTime?
+  created_at                 DateTime          @default(now())
+  updated_at                 DateTime?
+  call_transcript            call_transcript[]
+}
+
+model call_transcript {
+  id                    String    @id
+  call_id               String
+  transcript_seq        Int?
+  transcript_id         String?
+  role                  ChatRole?
+  transcript            String?
+  type                  String?
+  interrupted           Boolean?
+  transcript_confidence Float?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime?
+  call                  call      @relation(fields: [call_id], references: [id])
+}
+
+model customer {
+  id                  String    @id
+  customer_id         String
+  first_name          String?
+  campaign_id         String
+  campaign_name       String?
+  phone_number        String
+  call_attempts       Int?      @default(0)
+  last_call_id        String?   @unique
+  last_call_status    String?
+  last_call_timestamp DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime?
+
+  @@unique([customer_id, campaign_id])
+}
+
+enum CallOutcome {
+  OFFER_DECLINED
+  CALL_FORWARDING_FAILED
+  CALL_FORWARDING_SUCCEED
+  AI_CALLBACK_REQUESTED
+  CALL_DECLINED
+  CALL_TIMED_OUT
+  VOICEMAIL_REACHED
+  CALL_ERROR
+  CALL_HUNG_UP_IMMEDIATELY
+  CALL_IDLE
+}
+
+enum CallStatus {
+  IN_PROGRESS
+  FORWARDING
+  ENDED
+  FAILED
+}
+
+enum CallType {
+  INBOUND_PHONE_CALL
+  OUTBOUND_PHONE_CALL
+  WEBCALL
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
