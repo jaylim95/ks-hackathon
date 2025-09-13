@@ -16,6 +16,12 @@ export async function POST(req: Request) {
         name: "vapi/call.ended",
         data: message, // send only the message portion
       });
+    } else if (message.type == "session.created") {
+      // console.log(payload?.message)
+      await inngest.send({
+        name: "vapi/call.ended",
+        data: message, // send only the message portion
+      });
     }
     
     return NextResponse.json({ success: true });
