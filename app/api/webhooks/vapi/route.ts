@@ -24,6 +24,9 @@ export async function POST(req: Request) {
         name: "vapi/call.started",
         data: message, // send only the message portion
       });
+    } else {
+      console.log("unknown event")
+      console.log(payload)
     }
     
     return NextResponse.json({ success: true });
