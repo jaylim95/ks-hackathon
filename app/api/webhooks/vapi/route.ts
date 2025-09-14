@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
     const message = payload?.message;
-    // console.log(payload)
+    console.log(payload)
 
     if (!message ) {
       return NextResponse.json({ error: "Invalid or missing event type" }, { status: 400 });
