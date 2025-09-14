@@ -7,6 +7,7 @@ export const handleEndOfCall = inngest.createFunction(
   { event: "vapi/call.ended" },
   async ({ event }) => {
     const data = event.data;
+    console.log("call ended")
     console.log(data)
     const call = data.call;
     const callID = call?.id ;
@@ -33,6 +34,8 @@ export const handleStartOfCall = inngest.createFunction(
   { event: "vapi/call.started" },
   async ({ event }) => {
     const data = event.data;
+    console.log("call started")
+
     console.log(data)
   //   const call = data.call;
   //   const callID = call?.id ;

@@ -11,15 +11,17 @@ export async function POST(req: Request) {
     if (!message ) {
       return NextResponse.json({ error: "Invalid or missing event type" }, { status: 400 });
     } else if (message.type == "end-of-call-report") {
-      // console.log(payload?.message)
+      console.log("call ended")
+      console.log(payload?.message)
       await inngest.send({
         name: "vapi/call.ended",
         data: message, // send only the message portion
       });
     } else if (message.type == "session.created") {
-      // console.log(payload?.message)
+      console.log("call started")
+      console.log(payload?.message)
       await inngest.send({
-        name: "vapi/call.ended",
+        name: "vapi/call.started",
         data: message, // send only the message portion
       });
     }
