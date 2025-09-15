@@ -75,7 +75,7 @@ export const handleEndOfCall = inngest.createFunction(
       company_name: "na",
       campaign_id: "camp_001",
       campaign_name: "WiFi Mesh",
-      phone_number: data.customer.number,
+      phone_number: data?.customer?.number,
       room_name: Math.random().toString(36).substring(2, 15), // generate a random string,
       call_duration: data.durationSeconds,
       call_type: "OUTBOUND_PHONE_CALL",   // must match enum
@@ -164,7 +164,7 @@ export const handleStartOfCall = inngest.createFunction(
       company_name: "na",
       campaign_id: "camp_001",
       campaign_name: "WiFi Mesh",
-      phone_number: data.customer.number,
+      phone_number: data?.customer?.number,
       room_name: Math.random().toString(36).substring(2, 15), // generate a random string,
       call_duration: null,
       call_type: "OUTBOUND_PHONE_CALL",   // must match enum
