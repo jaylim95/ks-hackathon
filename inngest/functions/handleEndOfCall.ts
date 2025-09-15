@@ -65,7 +65,7 @@ export const handleEndOfCall = inngest.createFunction(
       }
     };
 
-    const connection_outcome = getConnectionOutcome(data.call.endedReason);
+    const connection_outcome = getConnectionOutcome(data.endedReason);
 
     const callData: call = {
       id: callID,
@@ -75,7 +75,7 @@ export const handleEndOfCall = inngest.createFunction(
       company_name: "na",
       campaign_id: "camp_001",
       campaign_name: "WiFi Mesh",
-      phone_number: data?.customer?.number || "+123456789",
+      phone_number: data?.customer?.number || "not available",
       room_name: Math.random().toString(36).substring(2, 15), // generate a random string,
       call_duration: data.durationSeconds,
       call_type: "OUTBOUND_PHONE_CALL",   // must match enum
@@ -131,6 +131,7 @@ export const handleEndOfCall = inngest.createFunction(
         updated_at: null
       }));
 
+      console.log(transcriptData)
       // Create transcript records
       await createTranscriptInDB(transcriptData)
 
@@ -164,7 +165,7 @@ export const handleStartOfCall = inngest.createFunction(
       company_name: "na",
       campaign_id: "camp_001",
       campaign_name: "WiFi Mesh",
-      phone_number: data?.customer?.number || "+123456789",
+      phone_number: data?.customer?.number || "not available",
       room_name: Math.random().toString(36).substring(2, 15), // generate a random string,
       call_duration: null,
       call_type: "OUTBOUND_PHONE_CALL",   // must match enum

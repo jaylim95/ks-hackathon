@@ -41,6 +41,7 @@ export async function upsertCallToDB(data: call) {
 }
 
 export async function createTranscriptInDB(transcriptData:call_transcript[]) {
+  console.log("updated trnascript")
   try{
     await prisma.call_transcript.createMany({
       data: transcriptData,
