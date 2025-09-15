@@ -1,69 +1,17 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
+// database
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model call {
-  id                         String            @id
-  customer_id                String
-  first_name                 String?
-  company_id                 String
-  company_name               String?
-  campaign_id                String
-  campaign_name              String?
-  phone_number               String
-  room_name                  String            @unique
-  call_duration              Float?
-  call_type                  CallType          @default(OUTBOUND_PHONE_CALL)
-  call_status                CallStatus?
-  call_outcome               CallOutcome?
-  call_attempt_num           Int               @default(0)
-  assistant_id               String?
-  summarized_transcript      String?
-  call_recording_url         String?           @unique
-  llm_prompt_tokens          Int?
-  llm_prompt_cached_tokens   Int?
-  llm_completion_tokens      Int?
-  tts_characters_count       Int?
-  tts_audio_duration         Float?
-  stt_audio_duration         Float?
-  total_latency              Float?
-  eou_end_of_utterance_delay Float?
-  llm_ttft                   Float?
-  tts_ttfb                   Float?
-  total_cost                 Float?
-  stt_cost                   Float?
-  tts_cost                   Float?
-  llm_cost                   Float?
-  raw_metrics                Json?
-  started_at                 DateTime?
-  ended_at                   DateTime?
-  created_at                 DateTime          @default(now())
-  updated_at                 DateTime?
-  call_transcript            call_transcript[]
+// generator
+generator client {
+  provider = "prisma-client-js"
 }
 
-model call_transcript {
-  id                    String    @id
-  call_id               String
-  transcript_seq        Int?
-  transcript_id         String?
-  role                  ChatRole?
-  transcript            String?
-  type                  String?
-  interrupted           Boolean?
-  transcript_confidence Float?
-  created_at            DateTime  @default(now())
-  updated_at            DateTime?
-  call                  call      @relation(fields: [call_id], references: [id])
-}
-
+// data models
 model customer {
-  id                  String    @id
+  id                  String    @id @default(uuid())
   customer_id         String
   first_name          String?
   campaign_id         String
@@ -74,9 +22,88 @@ model customer {
   last_call_status    String?
   last_call_timestamp DateTime?
   created_at          DateTime  @default(now())
-  updated_at          DateTime?
-
+  updated_at          DateTime? @updatedAt
   @@unique([customer_id, campaign_id])
+}
+
+model call {
+  id                          String        @id
+  customer_id                 String
+  first_name                  String?   
+  company_id                  String
+  company_name                String?
+  campaign_id                 String
+  campaign_name               String?
+  phone_number                String  
+  room_name                   String        @unique
+
+  call_duration               Float?        // in seconds
+  call_type                   CallType      @default(OUTBOUND_PHONE_CALL)
+  call_status                 CallStatus?  
+  call_outcome                CallOutcome?
+  call_attempt_num            Int           @default(0)
+  assistant_id                String?
+  assistant_name              String?
+  summarized_transcript       String?    
+  call_recording_url          String?       @unique
+
+  llm_prompt_tokens           Int?
+  llm_prompt_cached_tokens    Int?
+  llm_completion_tokens       Int?
+  tts_characters_count        Int?
+
+  tts_audio_duration          Float?
+  stt_audio_duration          Float?
+
+  total_latency               Float?
+  eou_end_of_utterance_delay  Float?
+  llm_ttft                    Float?
+  tts_ttfb                    Float?
+
+  total_cost                  Float?  // TODO: sum from costs below
+  stt_cost                    Float?  // TODO: derive from cost * duration
+  tts_cost                    Float?  // TODO: derive from cost * duration
+  llm_cost                    Float?  // TODO: derive from cost * duration
+
+  raw_metrics                 Json?
+
+  started_at                  DateTime? 
+  ended_at                    DateTime? 
+  created_at                  DateTime       @default(now())
+  updated_at                  DateTime?      @updatedAt
+  call_transcripts            call_transcript[]
+  connection_outcome          ConnectionOutcome?
+  call_outcome_new            String[]
+}
+
+model call_transcript {
+  id                    String      @id @default(uuid())
+  call                  call?       @relation(fields: [call_id], references: [id])
+  call_id               String      
+  transcript_seq        Int?
+  transcript_id         String?      
+  role                  ChatRole?
+  transcript            String?  
+  type                  String?
+  interrupted           Boolean?
+  transcript_confidence Float?
+
+  created_at            DateTime    @default(now())
+  updated_at            DateTime?   @updatedAt
+}
+
+// data model variables
+enum CallType {
+  INBOUND_PHONE_CALL
+  OUTBOUND_PHONE_CALL
+  WEBCALL
+}
+
+enum CallStatus {
+  IN_PROGRESS
+  FORWARDING
+  ENDED
+  FAILED
 }
 
 enum CallOutcome {
@@ -92,21 +119,23 @@ enum CallOutcome {
   CALL_IDLE
 }
 
-enum CallStatus {
-  IN_PROGRESS
-  FORWARDING
-  ENDED
-  FAILED
-}
-
-enum CallType {
-  INBOUND_PHONE_CALL
-  OUTBOUND_PHONE_CALL
-  WEBCALL
-}
-
 enum ChatRole {
   USER
   ASSISTANT
   SYSTEM
+}
+
+enum ConnectionOutcome {
+  FAILED_TO_START_CALL
+  IN_PROGRESS
+  CUSTOMER_ENDED_CALL
+  ASSISTANT_ENDED_CALL
+  CALL_FORWARDED_FAILED
+  CALL_FORWARDED_SUCCESSFUL
+  INVALID_NUMBER
+  DID_NOT_ANSWER
+  EXCEEDED_MAX_DURATION
+  SILENCE_TIMED_OUT
+  VOICEMAIL_REACHED
+  UNKNOWN_ERROR
 }

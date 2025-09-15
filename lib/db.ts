@@ -1,34 +1,54 @@
-// "use server"
+"use server"
 
-// import { PrismaClient, call, call_transcript } from '@prisma/client';
+import { PrismaClient, call, call_transcript } from '@prisma/client';
 
-// // const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 
 // export async function uploadBlobToStorage(recordingURL: string) {
 
 // }
 
-// export async function writeDataToDB(data: any) {
+export async function upsertCallToDB(data: call) {
+  const { id, ...updateData } = data;
 
-
-//   // try {
-//   //   const { call_transcripts, raw_metrics, ...callData } = data;
+  try {
+    const result = await prisma.call.upsert({
+      where: {
+        id: id, // must be unique
+      },
+      update: {
+        ...updateData,
+        raw_metrics: {},
+        updated_at: new Date()
+      },
+      create: {
+        ...data,
+        raw_metrics: {},
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+    })
     
-//   //   const createdCall = await prisma.call.create({
-//   //     data: {
-//   //       ...callData,
-//   //       raw_metrics: raw_metrics as any,
-//   //       call_transcript: call_transcripts
-//   //         ? { create: call_transcripts }
-//   //         : undefined,
-//   //     },
-//   //     include: { call_transcript: true },
-//   //   });
 
-//   //   return createdCall;
-//   // } catch (error) {
-//   //   console.error('Error writing call data to DB:', error);
-//   //   throw error;
-//   // }
-// }
+
+
+    return result;
+  } catch (error) {
+    console.error('Error writing call data to DB:', error);
+    throw error;
+  }
+}
+
+export async function createTranscriptInDB(transcriptData:call_transcript[]) {
+  try{
+    await prisma.call_transcript.createMany({
+      data: transcriptData,
+      skipDuplicates: true
+    });
+  } catch (error) {
+    console.error('Error writing call data to DB:', error);
+    throw error;
+  }
+}
+

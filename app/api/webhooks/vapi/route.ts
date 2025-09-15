@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
     const message = payload?.message;
-    console.log(payload)
+    // console.log(payload)
 
     if (!message ) {
       return NextResponse.json({ error: "Invalid or missing event type" }, { status: 400 });
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         name: "vapi/call.ended",
         data: message, // send only the message portion
       });
-    } else if (message.type == "session.created") {
+    } else if (message.type == "status-update" && message.status == "in-progress") {
       console.log("call started")
       console.log(payload?.message)
       await inngest.send({
