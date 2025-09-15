@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 
 export async function upsertCallToDB(data: call) {
   const { id, ...updateData } = data;
-
+  console.log(process.env.DATABASE_URL)
   try {
     const result = await prisma.call.upsert({
       where: {
