@@ -111,9 +111,10 @@ export const handleEndOfCall = inngest.createFunction(
 
     const result = await upsertCallToDB(callData);
     
+    console.log(data.messages)
     // Create transcript records
-    if (data.message && data.message.length > 0) {
-      const filteredMessages = data.message.filter((msg: MessageData) => 
+    if (data.messages && data.messages.length > 0) {
+      const filteredMessages = data.messages.filter((msg: MessageData) => 
         msg.role === 'bot' || msg.role === 'user'
       );
       
