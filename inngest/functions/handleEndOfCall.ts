@@ -145,7 +145,7 @@ export const handleStartOfCall = inngest.createFunction(
   { event: "vapi/call.started" },
   async ({ event }) => {
     const data = event.data;
-    console.log("call started")
+    console.log("call started 1")
 
     console.log(data)
     const call = data.call;
@@ -198,6 +198,7 @@ export const handleStartOfCall = inngest.createFunction(
       call_outcome_new: []
     };
 
+    console.log("call-start event")
     const result = await upsertCallToDB(callData);
 
     return { success: result };

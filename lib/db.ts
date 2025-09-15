@@ -32,7 +32,7 @@ export async function upsertCallToDB(data: call) {
     
 
 
-
+    console.log("data updated into db")
     return result;
   } catch (error) {
     console.error('Error writing call data to DB:', error);
