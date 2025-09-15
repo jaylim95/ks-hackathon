@@ -1,8 +1,9 @@
 // inngest/functions/handleEndOfCall.ts
 import { inngest } from "@/lib/inngest";
-import { call , ConnectionOutcome} from "@prisma/client";
+import { call , call_transcript, ChatRole, ConnectionOutcome} from "@prisma/client";
 
 import { upsertCallToDB , createTranscriptInDB } from "@/lib/db";
+import { processTranscriptWithOpenAI } from "@/lib/openai";
 
 interface MessageData {
   message?: string;
@@ -65,6 +66,45 @@ export const handleEndOfCall = inngest.createFunction(
       }
     };
 
+        
+    console.log(data.messages)
+    // Create transcript records
+    let messageItems: MessageData[] = [];
+    let transcriptRecords: call_transcript[] = [];
+    if (data.messages && data.messages.length > 0) {
+      messageItems = data.messages.filter((msg: MessageData) => 
+        msg.role === 'bot' || msg.role === 'user'
+      );
+      
+      const callIdStr = callID as string;
+
+      transcriptRecords = messageItems.map((msg: MessageData, index: number) => ({
+        id: `${callIdStr}_transcript_${index}`,
+        call_id: callIdStr,
+        transcript_seq: index + 1,
+        transcript_id: `${callIdStr}_msg_${index}`,
+        role: msg.role === 'bot' ? ChatRole.ASSISTANT : ChatRole.USER,
+        transcript: msg.message ?? null,
+        type: 'message',
+        interrupted: false,
+        transcript_confidence: null,
+        created_at: new Date(),
+        updated_at: new Date()
+      }));
+    }
+
+    const transcriptText = messageItems
+      .map((t) => `${t.role}: ${t.message ?? ""}`)
+      .join("\n");
+    
+    const raw = await processTranscriptWithOpenAI(transcriptText);
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(raw);
+    } catch {}
+    
+
+
     const connection_outcome = getConnectionOutcome(data.endedReason);
 
     const callData: call = {
@@ -106,36 +146,14 @@ export const handleEndOfCall = inngest.createFunction(
       created_at: data.startedAt, // has @default(now()), but TS type still requires it
       updated_at: null,
       connection_outcome: connection_outcome,
-      call_outcome_new: ["no response"]
+      call_outcome_new: Array.isArray(parsed?.call_outcome_new) ? parsed.call_outcome_new : ["No response"]
     };
 
     const result = await upsertCallToDB(callData);
-    
-    console.log(data.messages)
-    // Create transcript records
-    if (data.messages && data.messages.length > 0) {
-      const filteredMessages = data.messages.filter((msg: MessageData) => 
-        msg.role === 'bot' || msg.role === 'user'
-      );
-      
-      const transcriptData = filteredMessages.map((msg: MessageData, index: number) => ({
-        id: `${callID}_transcript_${index}`,
-        call_id: callID,
-        transcript_seq: index + 1,
-        transcript_id: `${callID}_msg_${index}`,
-        role: msg.role === 'bot' ? 'ASSISTANT' : 'USER',
-        transcript: msg.message,
-        type: 'message',
-        interrupted: false,
-        transcript_confidence: null
-      }));
 
-      console.log(transcriptData)
-      // Create transcript records
-      await createTranscriptInDB(transcriptData)
-
-    } 
-    
+    if (transcriptRecords.length > 0) {
+      await createTranscriptInDB(transcriptRecords)
+    }
     return { success: result };
   }
 );

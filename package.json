@@ -7,12 +7,15 @@
     "build": "next build  --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test:openai": "NODE_OPTIONS='--no-warnings' npx tsx scripts/test-openai.js"
   },
   "dependencies": {
     "@prisma/client": "6.16.1",
+    "dotenv": "^16.6.1",
     "inngest": "^3.40.3",
     "next": "15.5.3",
+    "openai": "^5.20.2",
     "prisma": "^6.16.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
