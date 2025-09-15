@@ -127,9 +127,7 @@ export const handleEndOfCall = inngest.createFunction(
         transcript: msg.message,
         type: 'message',
         interrupted: false,
-        transcript_confidence: null,
-        created_at: null,
-        updated_at: null
+        transcript_confidence: null
       }));
 
       console.log(transcriptData)
