@@ -17,47 +17,66 @@ export async function processTranscriptWithOpenAI(
 
 const systemMessage = `# System Prompt: Post-Call Tagging
 
-                        You are tasked with tagging each call transcript into *all relevant categories* based on the customer’s intent and the content of the call.  
-                        - There must be at least one tag 
-                        - Multiple tags can be applied if the customer shows multiple intents.  
-                          - Example: A customer asks about billing (→ Billing related enquiries – Call back) and also rejects the WiFi Mesh offer (→ Rejected).  
-                        - Tags must always come from the defined list below.  
+You are tasked with tagging each call transcript into the **most accurate categories** based on the customer’s intent and the content of the call.  
 
+- **Every call must receive at least one tag.**  
+- **Multiple tags may apply** if the customer shows multiple intents
+- All tags must come from the **defined list of categories** only.  
 
-                        ## Categories:
+---
 
-                        1. *Intent to buy*  
-                          - Customer completes all the following 3 actions: explicitly agrees to the offer, confirms the delivery slot, and accepts the monthly price.  
+## Categories
 
-                        2. *Intent to buy (fall outs)*  
-                          - Customer initially agrees but does not complete the process (e.g., rejects delivery options, declines final monthly price, or hesitates at confirmation).  
+### A. Sales Outcomes
 
-                        3. *Sales and promotion related (outside of WiFi Mesh) – Call back*  
-                          - Customer asks about other offers or promotions unrelated to WiFi Mesh that cannot be resolved during the call and agrees to a callback.  
+1. **Intent to buy**  
+   - Customer completes **all 3 actions**:  
+     - Explicitly agrees to the offer  
+     - Confirms delivery slot  
+     - Accepts the monthly price and contract terms  
 
-                        4. *Billing related enquiries – Call back*  
-                          - Customer asks about current plan charges, billing errors, or payment issues, related to Singtel but unrelated to Wifi mesh that cannot be resolved during the call and agrees to a callback.  
+2. **Intent to buy (fall outs)**  
+   - Customer initially agrees but does **not complete the process**.  
+   - For example: 
+     - Agrees to offer but rejects delivery slot  
+     - Hesitates at the final price or contract terms after selecting delivery slot 
+     - Disconnects before final confirmation  
 
-                        5. *Technical related enquiries – Call back*  
-                          - Customer raises Singtel technical issues not related to WiFi Mesh (e.g., fibre, connectivity, router issues) that cannot be resolved during the call and agrees to a callback.  
+3. **Rejected**  
+   - Customer listens but declines the offer 
 
-                        6. *Other enquiries – Call back*  
-                          - Customer raises questions not covered by sales, promotion, billing, or technical categories (e.g., account holder details, administrative queries) and agrees to a callback.  This can be related to or not related to Wifi mesh. 
+---
 
-                        7. *No response*  
-                          - Customer does not answer or hangs up before any meaningful conversation occurs.  
+### B. Callback Required (Reason must be specified)
 
-                        8. *Rejected*  
-                          - Customer explicitly declines the offer and does not request further follow-up.  
+4. **Call back – Sales & promotions**  
+   - Customer asks about other Singtel offers or promotions unrelated to WiFi Mesh and agrees to a call back. 
 
-                        9. *Bomb threat*  
-                          - Any mention of threats, violence, or security-related risks.  
+5. **Call back – Billing**  
+   - Customer asks about charges, billing errors, or payment issues unrelated to WiFi Mesh and agrees to a call back. 
 
-                        10. *Opt out from telemarketing calls*  
-                          - Customer explicitly asks not to receive future promotional or marketing calls.
+6. **Call back – Technical**  
+   - Customer raises Singtel technical issues not related to WiFi Mesh (e.g., fibre, TV, connectivity, router) and agrees to a call back. 
 
-                        11. *Customer busy - Call back*  
-                          - Customer is currently unavailable/ busy, and has provided an alternative time for a call back.
+7. **Call back – Other**  
+   - Customer asks questions outside of sales, billing, or technical categories
+   - Customer drops midway without ending the call 
+
+8. **Call back – Busy**  
+   - Customer is unavailable/busy but provides a preferred callback time.  
+
+---
+
+### C. Terminal Outcomes
+
+9. **No response**  
+   - Customer does not answer, or call ends before any conversation.  
+
+10. **Opt out from telemarketing calls**  
+   - Customer explicitly requests not to receive future promotional/marketing calls.  
+
+11. **Bomb threat**  
+   - Any mention of threats, violence, or security-related risks.
                         `
 
   try {
@@ -81,16 +100,17 @@ const systemMessage = `# System Prompt: Post-Call Tagging
                   "items": {
                   "type": "string",
                   "enum": [
-                      "Intent to buy",
-                      "Intent to buy (fall outs)",
-                      "Sales and promotion related (outside of Wifi Mesh) - Call back",
-                      "Billing related enquiries - Call back",
-                      "Technical related enquiries - Call back",
-                      "No response",
-                      "Rejected",
-                      "Bomb threat",
-                      "Opt out from telemarketing calls",
-                      "Customer busy - Call back"
+                  "Intent to buy",
+                  "Intent to buy (fall outs)",
+                  "Rejected",
+                  "Call back - Sales & promotions",
+                  "Call back - Billing",
+                  "Call back - Technical",
+                  "Call back - Other",
+                  "Call back - Busy",
+                  "No response",
+                  "Opt out from telemarketing calls",
+                  "Bomb threat"
                   ],
                   "description": "Choose one or more detailed outcomes."
                   }
