@@ -177,7 +177,7 @@ export const handleStartOfCall = inngest.createFunction(
     const callData: call = {
       id: callID,
       customer_id: Math.random().toString(36).substring(2, 15), // generate a random string
-      first_name: "Charles",
+      first_name: data?.call?.assistantOverrides?.variableValues?.customerName || "Unknown",
       company_id: "na",
       company_name: "na",
       campaign_id: "camp_001",
