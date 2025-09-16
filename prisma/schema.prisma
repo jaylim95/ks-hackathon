@@ -71,14 +71,14 @@ model call {
   ended_at                    DateTime? 
   created_at                  DateTime       @default(now())
   updated_at                  DateTime?      @updatedAt
-  call_transcripts            call_transcript[]
+  call_transcripts            call_transcript[] 
   connection_outcome          ConnectionOutcome?
   call_outcome_new            String[]
 }
 
 model call_transcript {
   id                    String      @id @default(uuid())
-  call                  call?       @relation(fields: [call_id], references: [id])
+  call                  call?       @relation(fields: [call_id], references: [id],  onDelete: Cascade)
   call_id               String      
   transcript_seq        Int?
   transcript_id         String?      

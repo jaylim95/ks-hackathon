@@ -15,36 +15,46 @@ export async function processTranscriptWithOpenAI(
     apiKey: api_key
   });
 
-const systemMessage = `You are a helpful assistant at a Singapore-based telco, who specializes in summarizing information from a sales call.
+const systemMessage = `# System Prompt: Post-Call Tagging
 
-            Your task:
-            1. Summarize the call transcript from the perspective of the sales rep.
-            2. Categorize the call into a variable called call_outcome_new, which  can take multiple possible values.
+                        You are tasked with tagging each call transcript into *all relevant categories* based on the customer’s intent and the content of the call.  
+                        - There must be at least one tag 
+                        - Multiple tags can be applied if the customer shows multiple intents.  
+                          - Example: A customer asks about billing (→ Billing related enquiries – Call back) and also rejects the WiFi Mesh offer (→ Rejected).  
+                        - Tags must always come from the defined list below.  
 
-            ### Definitions for call_outcome_new:
-            - Intent to buy: Customer shows clear intention to purchase the product.
-            - Example: "Yes, I’d like to sign up today."
-            - Intent to buy (fall outs): Customer initially showed buying intent but later backed out.
-            - Example: "Customer showed clear intent to buy, but then changed his mind."
-            - Sales and promotion related (outside of Wifi Mesh) - Call back: Customer asks about promotions or sales not related to Wifi Mesh.
-            - Example: "I want to knowabout the new mobile plan discount."
-            - Billing related enquiries - Call back: Customer asks about billing.
-            - Example: "I need details about my last invoice"
-            - Technical related enquiries - Call back: Customer raises technical issues.
-            - Example: "My internet keeps dropping, I can;t hear you."
-            - No response: Customer gives no meaningful input or stays silent.
-            - Example: No reply, hangup, irrelevant noise.
-            - Rejected: Customer firmly declines the offer.
-            - Example: "No, I am not interested. Don’t call again."
-            - Bomb threat: Customer makes a direct bomb threat.
-            - Example: "I’m going to bomb your office."
-            - Opt out from telemarketing calls: Customer asks not to be contacted again for sales.
-            - Example: "Remove me from your call list. Don't call me again for marketing."
 
-            Rules:
-            - Ignore fillers, noise, or repetition.
-            - Never mention the sales agent name.
-            - If unsure, say "I don't know".
+                        ## Categories:
+
+                        1. *Intent to buy*  
+                          - Customer explicitly agrees to the offer, confirms delivery slot, and accepts the monthly price.  
+
+                        2. *Intent to buy (fall outs)*  
+                          - Customer initially agrees but does not complete the process (e.g., rejects delivery options, declines final monthly price, or hesitates at confirmation).  
+
+                        3. *Sales and promotion related (outside of WiFi Mesh) – Call back*  
+                          - Customer asks about other offers or promotions unrelated to WiFi Mesh that cannot be resolved during the call and agrees to a callback.  
+
+                        4. *Billing related enquiries – Call back*  
+                          - Customer asks about current plan charges, billing errors, or payment issues, related to Singtel but unrelated to Wifi mesh that cannot be resolved during the call and agrees to a callback.  
+
+                        5. *Technical related enquiries – Call back*  
+                          - Customer raises Singtel technical issues not related to WiFi Mesh (e.g., fibre, connectivity, router issues) that cannot be resolved during the call and agrees to a callback.  
+
+                        6. *Other enquiries – Call back*  
+                          - Customer raises questions not covered by sales, promotion, billing, or technical categories (e.g., account holder details, administrative queries) and agrees to a callback.  This can be related to or not related to Wifi mesh. 
+
+                        7. *No response*  
+                          - Customer does not answer or hangs up before any meaningful conversation occurs.  
+
+                        8. *Rejected*  
+                          - Customer explicitly declines the offer and does not request further follow-up.  
+
+                        9. *Bomb threat*  
+                          - Any mention of threats, violence, or security-related risks.  
+
+                        10. *Opt out from telemarketing calls*  
+                          - Customer explicitly asks not to receive future promotional or marketing calls.
             `
 
   try {
