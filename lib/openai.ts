@@ -27,7 +27,7 @@ const systemMessage = `# System Prompt: Post-Call Tagging
                         ## Categories:
 
                         1. *Intent to buy*  
-                          - Customer explicitly agrees to the offer, confirms delivery slot, and accepts the monthly price.  
+                          - Customer completes all the following 3 actions: explicitly agrees to the offer, confirms the delivery slot, and accepts the monthly price.  
 
                         2. *Intent to buy (fall outs)*  
                           - Customer initially agrees but does not complete the process (e.g., rejects delivery options, declines final monthly price, or hesitates at confirmation).  
