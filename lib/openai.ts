@@ -55,7 +55,10 @@ const systemMessage = `# System Prompt: Post-Call Tagging
 
                         10. *Opt out from telemarketing calls*  
                           - Customer explicitly asks not to receive future promotional or marketing calls.
-            `
+
+                        11. *Customer busy - Call back*  
+                          - Customer asks to call back another time instead
+                        `
 
   try {
     const completion = await client.chat.completions.create({
@@ -86,7 +89,8 @@ const systemMessage = `# System Prompt: Post-Call Tagging
                       "No response",
                       "Rejected",
                       "Bomb threat",
-                      "Opt out from telemarketing calls"
+                      "Opt out from telemarketing calls",
+                      "Customer busy - Call back"
                   ],
                   "description": "Choose one or more detailed outcomes."
                   }
