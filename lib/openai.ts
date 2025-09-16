@@ -57,7 +57,7 @@ const systemMessage = `# System Prompt: Post-Call Tagging
                           - Customer explicitly asks not to receive future promotional or marketing calls.
 
                         11. *Customer busy - Call back*  
-                          - Customer asks to call back another time instead
+                          - Customer is currently unavailable/ busy, and has provided an alternative time for a call back.
                         `
 
   try {
