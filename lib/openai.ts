@@ -7,7 +7,7 @@ export async function processTranscriptWithOpenAI(
 ): Promise<string> {
 
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT
-  const deployment_name = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4.1-mini"
+  const deployment_name = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4.1"
   const api_key = process.env.AZURE_OPENAI_API_KEY
 
   const client = new OpenAI({
@@ -106,6 +106,7 @@ const systemMessage = `# System Prompt: Post-Call Tagging
     });
     const content = completion.choices[0]?.message?.content ?? "";
     console.log(content)
+    console.log(completion)
     return content;
 
   } catch (error) {
