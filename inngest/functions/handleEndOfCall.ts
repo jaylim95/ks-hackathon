@@ -1,6 +1,6 @@
 // inngest/functions/handleEndOfCall.ts
+import twilio from "twilio";
 import { inngest } from "@/lib/inngest";
-import twilio from "twilio"
 
 
 // Twilio setup
