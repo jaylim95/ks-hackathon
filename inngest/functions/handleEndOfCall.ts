@@ -1,12 +1,5 @@
 // inngest/functions/handleEndOfCall.ts
-import twilio from "twilio";
 import { inngest } from "@/lib/inngest";
-
-
-// Twilio setup
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const client = twilio(accountSid, authToken);
 
 export const handleEndOfCall = inngest.createFunction(
   { id: "handle-end-of-call" },
@@ -23,13 +16,36 @@ export const handleEndOfCall = inngest.createFunction(
     }
 
     try {
-      const message = await client.messages.create({
-        body: data.summary,                  // Send the call summary
-        from: "+13239876046", // e.g., "+15017122661"
-        to: "16282895738",     // e.g., "+15558675310"
+      const accountSid = process.env.TWILIO_ACCOUNT_SID!;
+      const apiKey = process.env.TWILIO_API_KEY!;
+      const apiSecret = process.env.TWILIO_API_SECRET!;
+      const from = "+13239876046";
+      const to = "+16282895738";
+      const body = data.summary;
+
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+      const formData = new URLSearchParams();
+      formData.append("To", to);
+      formData.append("From", from);
+      formData.append("Body", body);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": "Basic " + Buffer.from(`${apiKey}:${apiSecret}`).toString("base64"),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
       });
 
-      console.log("SMS sent, SID:", message.sid);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Twilio API error: ${response.status} - ${errorText}`);
+      }
+
+      const messageData = await response.json();
+      console.log("SMS sent, SID:", messageData.sid);
     } catch (error) {
       console.error("Error sending SMS:", error);
     }
