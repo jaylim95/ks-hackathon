@@ -17,28 +17,27 @@ export const handleEndOfCall = inngest.createFunction(
 
     try {
       const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-      const apiKey = process.env.TWILIO_API_KEY!;
-      const apiSecret = process.env.TWILIO_API_SECRET!;
+      const authToken = process.env.TWILIO_AUTH_TOKEN!;
       const from = "+13239876046";
       const to = "+16282895738";
       const body = data.summary;
-
+    
       const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-
+    
       const formData = new URLSearchParams();
       formData.append("To", to);
       formData.append("From", from);
       formData.append("Body", body);
-
+    
       const response = await fetch(url, {
         method: "POST",
         headers: {
-          "Authorization": "Basic " + Buffer.from(`${apiKey}:${apiSecret}`).toString("base64"),
+          "Authorization": "Basic " + Buffer.from(`${accountSid}:${authToken}`).toString("base64"),
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: formData.toString(),
       });
-
+    
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Twilio API error: ${response.status} - ${errorText}`);
